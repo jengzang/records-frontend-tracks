@@ -45,3 +45,12 @@ export const triggerPipeline = (
     headers: { 'Content-Type': 'multipart/form-data' }
   });
 };
+
+/**
+ * 获取导入任务列表
+ */
+export const listImportTasks = (limit: number = 50, offset: number = 0): Promise<ImportTask[]> => {
+  return api.get('/admin/tracks/import', {
+    params: { limit, offset }
+  });
+};

@@ -4,7 +4,7 @@ import { ClockCircleOutlined, CheckCircleOutlined, CloseCircleOutlined } from '@
 import FileUpload from '../../components/Admin/FileUpload';
 import ImportTaskList from '../../components/Admin/ImportTaskList';
 import { ImportTask } from '../../types/import';
-import { getImportTask } from '../../services/importService';
+import { getImportTask, listImportTasks } from '../../services/importService';
 
 const { Title, Text } = Typography;
 
@@ -52,10 +52,8 @@ const DataImport: React.FC = () => {
   const loadTasks = async () => {
     setLoading(true);
     try {
-      // TODO: 实现获取任务列表的API
-      // const response = await getImportTasks();
-      // setTasks(response);
-      setTasks([]);
+      const response = await listImportTasks(50, 0);
+      setTasks(response);
     } catch (error) {
       console.error('Failed to load tasks:', error);
     } finally {
