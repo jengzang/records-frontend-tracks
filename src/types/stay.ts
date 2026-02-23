@@ -9,6 +9,15 @@ export enum StayCategory {
   UNKNOWN = 'UNKNOWN',
 }
 
+// Stay type enum
+export enum StayType {
+  SPATIAL = 'SPATIAL',
+  ADMIN_PROVINCE = 'ADMIN_PROVINCE',
+  ADMIN_CITY = 'ADMIN_CITY',
+  ADMIN_COUNTY = 'ADMIN_COUNTY',
+  ADMIN_TOWN = 'ADMIN_TOWN',
+}
+
 // Stay segment represents a period of staying at one location
 export interface StaySegment {
   id: number;
@@ -21,6 +30,9 @@ export interface StaySegment {
   center_lat: number;
   radius: number; // meters
   point_count: number;
+
+  // Stay detection type
+  stay_type: StayType;
 
   // Administrative divisions
   province?: string;
@@ -43,6 +55,7 @@ export interface StaySegment {
 export interface StayFilter {
   startTime?: number;
   endTime?: number;
+  stayType?: StayType; // Filter by detection type
   category?: StayCategory;
   province?: string;
   city?: string;
