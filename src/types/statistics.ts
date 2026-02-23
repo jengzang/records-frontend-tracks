@@ -60,6 +60,7 @@ export interface StatsFilter {
   statType?: string;
   timeRange?: string;
   orderBy?: string;
+  stayType?: 'ALL' | 'SPATIAL' | 'ADMIN_AREA'; // Add stay type filter
   limit?: number;
   offset?: number;
 }

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Select, Card, message, Space, Button, Dropdown } from 'antd';
+import { Select, Card, message, Space, Button, Dropdown, Radio } from 'antd';
 import { DownloadOutlined } from '@ant-design/icons';
 import type { MenuProps } from 'antd';
 import { getStayRankings, StayRanking } from '../../services/statsService';
@@ -15,6 +15,7 @@ const StayRankings: React.FC = () => {
   const [statType, setStatType] = useState<string>('PROVINCE');
   const [timeRange, setTimeRange] = useState<string>('all');
   const [orderBy, setOrderBy] = useState<string>('count');
+  const [stayType, setStayType] = useState<'ALL' | 'SPATIAL' | 'ADMIN_AREA'>('ALL');
 
   const fetchData = async () => {
     try {
@@ -23,6 +24,7 @@ const StayRankings: React.FC = () => {
         statType,
         timeRange,
         orderBy,
+        stayType, // Add stay type filter
       });
       setData(rankings.items || []);
     } catch (error: any) {
@@ -34,7 +36,7 @@ const StayRankings: React.FC = () => {
 
   useEffect(() => {
     fetchData();
-  }, [statType, timeRange, orderBy]);
+  }, [statType, timeRange, orderBy, stayType]); // Add stayType to dependencies
 
   const columns: ColumnsType<StayRanking> = [
     {
@@ -103,7 +105,15 @@ const StayRankings: React.FC = () => {
 
       {/* Filters */}
       <Card className="mb-4">
-        <Space size="large">
+        <Space size="large" wrap>
+          <div>
+            <span className="mr-2 font-medium">停留类型:</span>
+            <Radio.Group value={stayType} onChange={(e) => setStayType(e.target.value)}>
+              <Radio.Button value="ALL">全部停留</Radio.Button>
+              <Radio.Button value="SPATIAL">空间停留</Radio.Button>
+              <Radio.Button value="ADMIN_AREA">行政区停留</Radio.Button>
+            </Radio.Group>
+          </div>
           <div>
             <span className="mr-2 font-medium">统计类型:</span>
             <Select
