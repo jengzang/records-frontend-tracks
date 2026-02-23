@@ -50,6 +50,10 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
           key: '/stats/extreme',
           label: <Link to="/stats/extreme">极值事件</Link>,
         },
+        {
+          key: '/stats/advanced',
+          label: <Link to="/stats/advanced">高级分析</Link>,
+        },
       ],
     },
     {
