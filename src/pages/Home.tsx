@@ -157,6 +157,15 @@ const Home: React.FC = () => {
             </p>
           </Link>
           <Link
+            to="/admin/import"
+            className="block p-4 border rounded hover:border-blue-500 hover:shadow-md transition"
+          >
+            <h3 className="text-lg font-semibold mb-2">📤 数据导入</h3>
+            <p className="text-gray-600 text-sm">
+              上传GPS轨迹数据文件，支持增量和全量导入
+            </p>
+          </Link>
+          <Link
             to="/admin/geocoding"
             className="block p-4 border rounded hover:border-blue-500 hover:shadow-md transition"
           >
