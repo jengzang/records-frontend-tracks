@@ -35,6 +35,7 @@ GPS轨迹数据分析与可视化平台前端
 ### 已实现功能
 
 1. **管理后台**
+   - 数据导入管理（文件上传、增量/全量导入、去重配置）
    - 地理编码任务管理（创建、监控、取消）
    - 数据分析任务管理（触发分析链、查看进度）
    - 实时进度跟踪和ETA显示
@@ -73,6 +74,7 @@ GPS轨迹数据分析与可视化平台前端
 src/
 ├── pages/                    # 页面组件
 │   ├── Admin/               # 管理后台
+│   │   ├── DataImport.tsx
 │   │   ├── GeocodingTasks.tsx
 │   │   └── AnalysisTasks.tsx
 │   ├── Map/                 # 地图可视化
@@ -99,18 +101,23 @@ src/
 │   ├── Statistics/          # 统计组件
 │   │   └── RankingTable.tsx
 │   └── Admin/               # 管理组件
+│       ├── FileUpload.tsx
+│       ├── ImportTaskList.tsx
 │       └── TaskStatus.tsx
 ├── services/                # API服务
 │   ├── api.ts
 │   ├── trackService.ts
 │   ├── statsService.ts
-│   └── adminService.ts
+│   ├── adminService.ts
+│   └── importService.ts
 ├── types/                   # TypeScript类型定义
 │   ├── track.ts
 │   ├── segment.ts
 │   ├── stay.ts
 │   ├── trip.ts
-│   └── statistics.ts
+│   ├── statistics.ts
+│   ├── admin.ts
+│   └── import.ts
 ├── hooks/                   # 自定义Hooks
 │   └── useApi.ts
 ├── utils/                   # 工具函数
@@ -161,7 +168,7 @@ VITE_MAPBOX_TOKEN=your_mapbox_token_here
 前端通过RESTful API与Go后端通信：
 
 - **基础URL**: `http://localhost:8080/api/v1`
-- **管理接口**: `/admin/geocoding/*`, `/admin/analysis/*`
+- **管理接口**: `/admin/geocoding/*`, `/admin/analysis/*`, `/admin/tracks/import`, `/admin/pipeline/trigger`
 - **轨迹接口**: `/tracks/segments`, `/tracks/stays`, `/tracks/trips`
 - **可视化接口**: `/viz/rendering`, `/viz/grid-cells`, `/viz/time-slices`
 - **统计接口**: `/stats/footprint/rankings`, `/stats/stay/rankings`, `/stats/extreme-events`
@@ -176,6 +183,18 @@ VITE_MAPBOX_TOKEN=your_mapbox_token_here
 - 推荐使用nginx反向代理
 
 ## 更新日志
+
+### 2026-02-23
+- ✅ 完成Phase 4: 数据导入界面实现
+  - 创建类型定义（import.ts）
+  - 实现API服务（importService.ts）
+  - 实现FileUpload文件上传组件（支持拖拽、格式验证、配置选项）
+  - 实现ImportTaskList任务列表组件（自动刷新、统计展示）
+  - 实现DataImport数据导入页面（完整布局、状态管理）
+  - 添加路由和菜单项（/admin/import）
+  - 支持增量/全量导入模式
+  - 支持去重和自动触发分析流水线
+  - 实时显示导入进度和统计信息
 
 ### 2026-02-20
 - ✅ 完成Phase 6.3: 地图可视化功能

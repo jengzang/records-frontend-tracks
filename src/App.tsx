@@ -9,6 +9,7 @@ import StayRankings from './pages/Statistics/StayRankings';
 import ExtremeEvents from './pages/Statistics/ExtremeEvents';
 import GeocodingTasks from './pages/Admin/GeocodingTasks';
 import AnalysisTasks from './pages/Admin/AnalysisTasks';
+import DataImport from './pages/Admin/DataImport';
 
 function App() {
   return (
@@ -23,6 +24,7 @@ function App() {
             <Route path="/stats/extreme" element={<ExtremeEvents />} />
             <Route path="/admin/geocoding" element={<GeocodingTasks />} />
             <Route path="/admin/analysis" element={<AnalysisTasks />} />
+            <Route path="/admin/import" element={<DataImport />} />
           </Routes>
         </MainLayout>
       </Router>

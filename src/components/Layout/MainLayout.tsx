@@ -6,6 +6,7 @@ import {
   EnvironmentOutlined,
   BarChartOutlined,
   SettingOutlined,
+  UploadOutlined,
 } from '@ant-design/icons';
 
 const { Header, Content, Footer } = Layout;
@@ -52,6 +53,11 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
       icon: <SettingOutlined />,
       label: '任务管理',
       children: [
+        {
+          key: '/admin/import',
+          icon: <UploadOutlined />,
+          label: <Link to="/admin/import">数据导入</Link>,
+        },
         {
           key: '/admin/geocoding',
           label: <Link to="/admin/geocoding">地理编码</Link>,
