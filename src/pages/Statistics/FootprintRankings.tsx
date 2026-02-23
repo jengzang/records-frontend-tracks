@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Select, Card, message, Space } from 'antd';
+import { Select, Card, message, Space, Button, Dropdown } from 'antd';
+import { DownloadOutlined } from '@ant-design/icons';
+import type { MenuProps } from 'antd';
 import { getFootprintRankings, FootprintRanking } from '../../services/statsService';
+import { exportFootprintCSV, exportFootprintJSON } from '../../services/exportService';
 import RankingTable from '../../components/Statistics/RankingTable';
 import BarChart from '../../components/Charts/BarChart';
 import { formatDistance, formatDuration } from '../../utils/formatters';
@@ -83,11 +86,30 @@ const FootprintRankings: React.FC = () => {
            item.distance_meters / 1000, // km
   }));
 
+  // Export menu items
+  const exportMenuItems: MenuProps['items'] = [
+    {
+      key: 'csv',
+      label: '导出为 CSV',
+      onClick: () => exportFootprintCSV({ statType, timeRange, orderBy }),
+    },
+    {
+      key: 'json',
+      label: '导出为 JSON',
+      onClick: () => exportFootprintJSON({ statType, timeRange, orderBy }),
+    },
+  ];
+
   return (
     <div>
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold mb-2">足迹排名</h1>
-        <p className="text-gray-600">按地理区域统计轨迹点分布</p>
+      <div className="mb-6 flex justify-between items-start">
+        <div>
+          <h1 className="text-2xl font-bold mb-2">足迹排名</h1>
+          <p className="text-gray-600">按地理区域统计轨迹点分布</p>
+        </div>
+        <Dropdown menu={{ items: exportMenuItems }} placement="bottomRight">
+          <Button icon={<DownloadOutlined />}>导出数据</Button>
+        </Dropdown>
       </div>
 
       {/* Filters */}

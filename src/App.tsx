@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { ConfigProvider } from 'antd';
 import zhCN from 'antd/locale/zh_CN';
+import ErrorBoundary from './components/ErrorBoundary';
 import MainLayout from './components/Layout/MainLayout';
 import Home from './pages/Home';
 import TrajectoryMap from './pages/Map/TrajectoryMap';
@@ -13,22 +14,24 @@ import DataImport from './pages/Admin/DataImport';
 
 function App() {
   return (
-    <ConfigProvider locale={zhCN}>
-      <Router>
-        <MainLayout>
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/map" element={<TrajectoryMap />} />
-            <Route path="/stats/footprint" element={<FootprintRankings />} />
-            <Route path="/stats/stay" element={<StayRankings />} />
-            <Route path="/stats/extreme" element={<ExtremeEvents />} />
-            <Route path="/admin/geocoding" element={<GeocodingTasks />} />
-            <Route path="/admin/analysis" element={<AnalysisTasks />} />
-            <Route path="/admin/import" element={<DataImport />} />
-          </Routes>
-        </MainLayout>
-      </Router>
-    </ConfigProvider>
+    <ErrorBoundary>
+      <ConfigProvider locale={zhCN}>
+        <Router>
+          <MainLayout>
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/map" element={<TrajectoryMap />} />
+              <Route path="/stats/footprint" element={<FootprintRankings />} />
+              <Route path="/stats/stay" element={<StayRankings />} />
+              <Route path="/stats/extreme" element={<ExtremeEvents />} />
+              <Route path="/admin/geocoding" element={<GeocodingTasks />} />
+              <Route path="/admin/analysis" element={<AnalysisTasks />} />
+              <Route path="/admin/import" element={<DataImport />} />
+            </Routes>
+          </MainLayout>
+        </Router>
+      </ConfigProvider>
+    </ErrorBoundary>
   );
 }
 

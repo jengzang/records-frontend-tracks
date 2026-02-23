@@ -1,5 +1,9 @@
 import React, { useEffect, useRef } from 'react';
 import * as echarts from 'echarts';
+import { Button, Dropdown } from 'antd';
+import { DownloadOutlined } from '@ant-design/icons';
+import type { MenuProps } from 'antd';
+import { exportCSV, getExportFilename } from '../../utils/export';
 
 interface BarChartProps {
   data: any[];
@@ -7,6 +11,7 @@ interface BarChartProps {
   yField: string;
   title?: string;
   height?: number;
+  showExport?: boolean;
 }
 
 const BarChart: React.FC<BarChartProps> = ({
@@ -15,9 +20,42 @@ const BarChart: React.FC<BarChartProps> = ({
   yField,
   title,
   height = 400,
+  showExport = true,
 }) => {
   const chartRef = useRef<HTMLDivElement>(null);
   const chartInstance = useRef<echarts.ECharts | null>(null);
+
+  // Export handlers
+  const handleExportPNG = () => {
+    if (!chartInstance.current) return;
+    const url = chartInstance.current.getDataURL({
+      type: 'png',
+      pixelRatio: 2,
+      backgroundColor: '#fff',
+    });
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = getExportFilename('chart', 'png');
+    link.click();
+  };
+
+  const handleExportCSV = () => {
+    const filename = getExportFilename('chart_data', 'csv');
+    exportCSV(data, filename);
+  };
+
+  const exportMenuItems: MenuProps['items'] = [
+    {
+      key: 'png',
+      label: '导出为图片 (PNG)',
+      onClick: handleExportPNG,
+    },
+    {
+      key: 'csv',
+      label: '导出数据 (CSV)',
+      onClick: handleExportCSV,
+    },
+  ];
 
   useEffect(() => {
     if (!chartRef.current) return;
@@ -40,6 +78,20 @@ const BarChart: React.FC<BarChartProps> = ({
           type: 'shadow',
         },
       },
+      toolbox: showExport ? {
+        feature: {
+          saveAsImage: {
+            title: '保存为图片',
+            pixelRatio: 2,
+          },
+          dataZoom: {
+            title: {
+              zoom: '区域缩放',
+              back: '还原',
+            },
+          },
+        },
+      } : undefined,
       grid: {
         left: '3%',
         right: '4%',
@@ -87,7 +139,18 @@ const BarChart: React.FC<BarChartProps> = ({
     };
   }, []);
 
-  return <div ref={chartRef} style={{ width: '100%', height }} />;
+  return (
+    <div className="relative">
+      {showExport && (
+        <div className="absolute top-2 right-2 z-10">
+          <Dropdown menu={{ items: exportMenuItems }} placement="bottomRight">
+            <Button size="small" icon={<DownloadOutlined />} />
+          </Dropdown>
+        </div>
+      )}
+      <div ref={chartRef} style={{ width: '100%', height }} />
+    </div>
+  );
 };
 
 export default BarChart;

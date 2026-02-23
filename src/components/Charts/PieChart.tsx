@@ -1,5 +1,9 @@
 import React, { useEffect, useRef } from 'react';
 import * as echarts from 'echarts';
+import { Button, Dropdown } from 'antd';
+import { DownloadOutlined } from '@ant-design/icons';
+import type { MenuProps } from 'antd';
+import { exportCSV, getExportFilename } from '../../utils/export';
 
 interface PieChartProps {
   data: any[];
@@ -7,6 +11,7 @@ interface PieChartProps {
   valueField: string;
   title?: string;
   height?: number;
+  showExport?: boolean;
 }
 
 const PieChart: React.FC<PieChartProps> = ({
@@ -15,9 +20,42 @@ const PieChart: React.FC<PieChartProps> = ({
   valueField,
   title,
   height = 400,
+  showExport = true,
 }) => {
   const chartRef = useRef<HTMLDivElement>(null);
   const chartInstance = useRef<echarts.ECharts | null>(null);
+
+  // Export handlers
+  const handleExportPNG = () => {
+    if (!chartInstance.current) return;
+    const url = chartInstance.current.getDataURL({
+      type: 'png',
+      pixelRatio: 2,
+      backgroundColor: '#fff',
+    });
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = getExportFilename('chart', 'png');
+    link.click();
+  };
+
+  const handleExportCSV = () => {
+    const filename = getExportFilename('chart_data', 'csv');
+    exportCSV(data, filename);
+  };
+
+  const exportMenuItems: MenuProps['items'] = [
+    {
+      key: 'png',
+      label: '导出为图片 (PNG)',
+      onClick: handleExportPNG,
+    },
+    {
+      key: 'csv',
+      label: '导出数据 (CSV)',
+      onClick: handleExportCSV,
+    },
+  ];
 
   useEffect(() => {
     if (!chartRef.current) return;
@@ -40,6 +78,14 @@ const PieChart: React.FC<PieChartProps> = ({
         trigger: 'item',
         formatter: '{a} <br/>{b}: {c} ({d}%)',
       },
+      toolbox: showExport ? {
+        feature: {
+          saveAsImage: {
+            title: '保存为图片',
+            pixelRatio: 2,
+          },
+        },
+      } : undefined,
       legend: {
         orient: 'vertical',
         left: 'left',
@@ -81,7 +127,18 @@ const PieChart: React.FC<PieChartProps> = ({
     };
   }, []);
 
-  return <div ref={chartRef} style={{ width: '100%', height }} />;
+  return (
+    <div className="relative">
+      {showExport && (
+        <div className="absolute top-2 right-2 z-10">
+          <Dropdown menu={{ items: exportMenuItems }} placement="bottomRight">
+            <Button size="small" icon={<DownloadOutlined />} />
+          </Dropdown>
+        </div>
+      )}
+      <div ref={chartRef} style={{ width: '100%', height }} />
+    </div>
+  );
 };
 
 export default PieChart;

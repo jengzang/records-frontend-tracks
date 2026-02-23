@@ -1,12 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { Card, Statistic, Row, Col, message, Tag, Button } from 'antd';
+import { Card, Statistic, Row, Col, message, Tag, Button, Dropdown } from 'antd';
+import type { MenuProps } from 'antd';
 import {
   EnvironmentOutlined,
   RiseOutlined,
   CompassOutlined,
   CalendarOutlined,
+  DownloadOutlined,
 } from '@ant-design/icons';
 import { getExtremeEvents, ExtremeEvent } from '../../services/statsService';
+import { exportExtremeEventsCSV, exportExtremeEventsJSON } from '../../services/exportService';
 import { formatTimestamp } from '../../utils/formatters';
 import { useNavigate } from 'react-router-dom';
 
@@ -79,11 +82,30 @@ const ExtremeEvents: React.FC = () => {
     navigate(`/map?lat=${event.latitude}&lon=${event.longitude}&zoom=12`);
   };
 
+  // Export menu items
+  const exportMenuItems: MenuProps['items'] = [
+    {
+      key: 'csv',
+      label: '导出为 CSV',
+      onClick: () => exportExtremeEventsCSV({}),
+    },
+    {
+      key: 'json',
+      label: '导出为 JSON',
+      onClick: () => exportExtremeEventsJSON({}),
+    },
+  ];
+
   return (
     <div>
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold mb-2">极值事件</h1>
-        <p className="text-gray-600">记录轨迹中的极值点和特殊事件</p>
+      <div className="mb-6 flex justify-between items-start">
+        <div>
+          <h1 className="text-2xl font-bold mb-2">极值事件</h1>
+          <p className="text-gray-600">记录轨迹中的极值点和特殊事件</p>
+        </div>
+        <Dropdown menu={{ items: exportMenuItems }} placement="bottomRight">
+          <Button icon={<DownloadOutlined />}>导出数据</Button>
+        </Dropdown>
       </div>
 
       <Row gutter={[16, 16]}>

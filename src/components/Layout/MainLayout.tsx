@@ -1,5 +1,5 @@
-import React from 'react';
-import { Layout, Menu } from 'antd';
+import React, { useState } from 'react';
+import { Layout, Menu, Drawer, Button } from 'antd';
 import { Link, useLocation } from 'react-router-dom';
 import {
   HomeOutlined,
@@ -7,7 +7,9 @@ import {
   BarChartOutlined,
   SettingOutlined,
   UploadOutlined,
+  MenuOutlined,
 } from '@ant-design/icons';
+import { useIsMobile } from '../../hooks/useMediaQuery';
 
 const { Header, Content, Footer } = Layout;
 
@@ -17,6 +19,8 @@ interface MainLayoutProps {
 
 const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
   const location = useLocation();
+  const isMobile = useIsMobile();
+  const [drawerVisible, setDrawerVisible] = useState(false);
 
   const menuItems = [
     {
@@ -72,23 +76,52 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
 
   return (
     <Layout className="min-h-screen">
-      <Header className="flex items-center">
-        <div className="text-white text-xl font-bold mr-8">轨迹分析系统</div>
-        <Menu
-          theme="dark"
-          mode="horizontal"
-          selectedKeys={[location.pathname]}
-          items={menuItems}
-          className="flex-1"
-        />
+      <Header className="flex items-center justify-between px-4">
+        <div className="text-white text-xl font-bold">
+          {isMobile ? '轨迹分析' : '轨迹分析系统'}
+        </div>
+        {isMobile ? (
+          <Button
+            type="text"
+            icon={<MenuOutlined className="text-white text-xl" />}
+            onClick={() => setDrawerVisible(true)}
+          />
+        ) : (
+          <Menu
+            theme="dark"
+            mode="horizontal"
+            selectedKeys={[location.pathname]}
+            items={menuItems}
+            className="flex-1 ml-8"
+          />
+        )}
       </Header>
-      <Content className="p-6 bg-gray-100">
-        <div className="bg-white p-6 rounded-lg shadow-sm min-h-[calc(100vh-180px)]">
+
+      {/* Mobile Drawer Menu */}
+      {isMobile && (
+        <Drawer
+          title="菜单"
+          placement="right"
+          onClose={() => setDrawerVisible(false)}
+          open={drawerVisible}
+          width={280}
+        >
+          <Menu
+            mode="inline"
+            selectedKeys={[location.pathname]}
+            items={menuItems}
+            onClick={() => setDrawerVisible(false)}
+          />
+        </Drawer>
+      )}
+
+      <Content className={isMobile ? 'p-3 bg-gray-100' : 'p-6 bg-gray-100'}>
+        <div className={`bg-white rounded-lg shadow-sm min-h-[calc(100vh-180px)] ${isMobile ? 'p-3' : 'p-6'}`}>
           {children}
         </div>
       </Content>
-      <Footer className="text-center text-gray-600">
-        轨迹分析系统 ©2026 - GPS轨迹数据分析与可视化平台
+      <Footer className="text-center text-gray-600 text-sm">
+        {isMobile ? '轨迹分析系统 ©2026' : '轨迹分析系统 ©2026 - GPS轨迹数据分析与可视化平台'}
       </Footer>
     </Layout>
   );
