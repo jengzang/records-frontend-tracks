@@ -1,19 +1,33 @@
 import React, { useState, useEffect } from 'react';
-import { Card, Statistic, Row, Col, Spin, message } from 'antd';
+import { Card, Statistic, Row, Col, Spin, message, Timeline, Tag } from 'antd';
 import {
   EnvironmentOutlined,
   RiseOutlined,
   GlobalOutlined,
   ClockCircleOutlined,
+  HomeOutlined,
+  ThunderboltOutlined,
 } from '@ant-design/icons';
-import { getFootprintRankings } from '../services/statsService';
+import { getFootprintRankings, getStayRankings } from '../services/statsService';
+import api from '../services/api';
 import { Link } from 'react-router-dom';
+import { formatDuration } from '../utils/formatters';
 
 interface SummaryStats {
   totalPoints: number;
   totalDistance: number;
   provinceCount: number;
   cityCount: number;
+  stayCount: number;
+  totalStayDuration: number;
+}
+
+interface RecentTask {
+  id: number;
+  skill_name: string;
+  status: string;
+  created_at: number;
+  result_summary?: string;
 }
 
 const Home: React.FC = () => {
@@ -22,7 +36,10 @@ const Home: React.FC = () => {
     totalDistance: 0,
     provinceCount: 0,
     cityCount: 0,
+    stayCount: 0,
+    totalStayDuration: 0,
   });
+  const [recentTasks, setRecentTasks] = useState<RecentTask[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -43,17 +60,38 @@ const Home: React.FC = () => {
           orderBy: 'points',
         });
 
+        // Fetch stay statistics
+        const stayData = await getStayRankings({
+          statType: 'CITY',
+          timeRange: 'all',
+          orderBy: 'count',
+        });
+
+        // Fetch recent analysis tasks
+        try {
+          const tasksResponse = await api.get('/admin/analysis/tasks', {
+            params: { limit: 5, offset: 0 },
+          });
+          setRecentTasks(tasksResponse.items || []);
+        } catch (error) {
+          console.error('Failed to fetch recent tasks:', error);
+        }
+
         // Calculate totals
         const totalPoints = provinceData.items?.reduce((sum: number, item: any) => sum + item.point_count, 0) || 0;
         const totalDistance = provinceData.items?.reduce((sum: number, item: any) => sum + item.distance_meters, 0) || 0;
         const provinceCount = provinceData.items?.length || 0;
         const cityCount = cityData.items?.length || 0;
+        const stayCount = stayData.items?.reduce((sum: number, item: any) => sum + item.stay_count, 0) || 0;
+        const totalStayDuration = stayData.items?.reduce((sum: number, item: any) => sum + item.total_duration_seconds, 0) || 0;
 
         setStats({
           totalPoints,
           totalDistance,
           provinceCount,
           cityCount,
+          stayCount,
+          totalStayDuration,
         });
       } catch (error: any) {
         message.error('获取统计数据失败');
@@ -116,6 +154,53 @@ const Home: React.FC = () => {
             </Card>
           </Col>
         </Row>
+
+        <Row gutter={[16, 16]} className="mb-8">
+          <Col xs={24} sm={12} lg={6}>
+            <Card>
+              <Statistic
+                title="停留次数"
+                value={stats.stayCount}
+                prefix={<HomeOutlined />}
+                suffix="次"
+              />
+            </Card>
+          </Col>
+          <Col xs={24} sm={12} lg={6}>
+            <Card>
+              <Statistic
+                title="停留总时长"
+                value={formatDuration(stats.totalStayDuration)}
+                prefix={<ClockCircleOutlined />}
+              />
+            </Card>
+          </Col>
+          <Col xs={24} sm={12} lg={12}>
+            <Card title="最近分析任务" size="small">
+              {recentTasks.length > 0 ? (
+                <Timeline
+                  items={recentTasks.slice(0, 3).map((task) => ({
+                    children: (
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span>{task.skill_name}</span>
+                          <Tag color={task.status === 'completed' ? 'green' : task.status === 'failed' ? 'red' : 'blue'}>
+                            {task.status}
+                          </Tag>
+                        </div>
+                        <div className="text-xs text-gray-500">
+                          {new Date(task.created_at * 1000).toLocaleString()}
+                        </div>
+                      </div>
+                    ),
+                  }))}
+                />
+              ) : (
+                <div className="text-gray-500 text-sm">暂无任务记录</div>
+              )}
+            </Card>
+          </Col>
+        </Row>
       </Spin>
 
       <Card title="快速导航" className="mb-8">
@@ -154,6 +239,15 @@ const Home: React.FC = () => {
             <h3 className="text-lg font-semibold mb-2">🏆 极值事件</h3>
             <p className="text-gray-600 text-sm">
               查看最高海拔、最快速度等极值记录
+            </p>
+          </Link>
+          <Link
+            to="/stats/advanced"
+            className="block p-4 border rounded hover:border-blue-500 hover:shadow-md transition"
+          >
+            <h3 className="text-lg font-semibold mb-2">🔬 高级分析</h3>
+            <p className="text-gray-600 text-sm">
+              速度空间、方向偏好、重访模式、海拔维度分析
             </p>
           </Link>
           <Link
